@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <rect width="512" height="512" rx="128" fill="#1e1f29"/>
+  <!-- Prancheta -->
+  <rect x="112" y="128" width="288" height="320" rx="24" fill="#2b2d3e" stroke="#3b3e54" stroke-width="8"/>
+  <rect x="176" y="80" width="160" height="64" rx="16" fill="#7c5dfa"/>
+  
+  <!-- Linha 1 (Check) -->
+  <circle cx="160" cy="216" r="20" fill="#7c5dfa"/>
+  <path d="M150 216 l8 8 l14 -14" fill="none" stroke="#ffffff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="200" y="208" width="160" height="16" rx="8" fill="#e0e0e0"/>
+  
+  <!-- Linha 2 (Check) -->
+  <circle cx="160" cy="288" r="20" fill="#50e3c2"/>
+  <path d="M150 288 l8 8 l14 -14" fill="none" stroke="#ffffff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="200" y="280" width="120" height="16" rx="8" fill="#8f92a1"/>
+  
+  <!-- Linha 3 (Pendente) -->
+  <circle cx="160" cy="360" r="18" fill="none" stroke="#8f92a1" stroke-width="4"/>
+  <rect x="200" y="352" width="140" height="16" rx="8" fill="#8f92a1" opacity="0.6"/>
+</svg>
