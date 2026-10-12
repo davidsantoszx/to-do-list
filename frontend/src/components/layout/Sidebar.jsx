@@ -24,7 +24,7 @@ export default function Sidebar({
     { id: "sticky", label: "🧱 Sticky Wall" },
   ];
 
-  const { counts, lists, tags, setLists, setTags, deleteList, deleteTag } =
+  const { counts, lists, tags, createList, createTag, deleteList, deleteTag } =
     useTasks();
 
   const [showListModal, setShowListModal] = useState(false);
@@ -39,50 +39,57 @@ export default function Sidebar({
 
   const [selectedTag, setSelectedTag] = useState(null);
 
-  function handleCreateList(newList) {
-    setLists((prev) => [...prev, newList]);
-
+async function handleCreateList(newList) {
+  try {
+    await createList(newList);
     setShowListModal(false);
+  } catch (error) {
+    console.error("Erro ao criar lista:", error);
   }
-
+}
   function handleDeleteList(list) {
     setSelectedList(list);
     setShowDeleteListModal(true);
   }
 
-  function confirmDeleteList() {
-    if (!selectedList) {
-      return;
-    }
+async function confirmDeleteList() {
+  if (!selectedList) return;
 
-    deleteList(selectedList.id);
+  try {
+    await deleteList(selectedList.id);
 
-    // Se o usuário estava dentro da lista excluída,
-    // volta para Upcoming
     if (activeMenu === selectedList.id) {
       setActiveMenu("upcoming");
     }
 
     setShowDeleteListModal(false);
     setSelectedList(null);
+  } catch (error) {
+    console.error("Erro ao excluir lista:", error);
   }
+}
 
-  function handleDeleteTag() {
-    if (!selectedTag) {
-      return;
-    }
+async function handleDeleteTag() {
+  if (!selectedTag) return;
 
-    deleteTag(selectedTag.id);
+  try {
+    await deleteTag(selectedTag.id);
 
     setShowDeleteTagModal(false);
     setSelectedTag(null);
+  } catch (error) {
+    console.error("Erro ao excluir tag:", error);
   }
+}
 
-  function handleCreateTag(newTag) {
-    setTags((prev) => [...prev, newTag]);
-
+async function handleCreateTag(newTag) {
+  try {
+    await createTag(newTag);
     setShowTagModal(false);
+  } catch (error) {
+    console.error("Erro ao criar tag:", error);
   }
+}
 
   return (
     <aside

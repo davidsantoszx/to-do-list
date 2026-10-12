@@ -1,0 +1,93 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(uuid())
+  name         String
+  email        String   @unique
+  passwordHash String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  tasks     Task[]
+  taskLists TaskList[]
+  tags      Tag[]
+}
+
+model Task {
+  id          String    @id @default(uuid())
+  title       String
+  description String?
+  completed   Boolean   @default(false)
+  priority    String    @default("medium")
+  dueDate     DateTime?
+  dueTime     String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  listId String?
+  list   TaskList? @relation(fields: [listId], references: [id], onDelete: SetNull)
+
+  parentTaskId String?
+  parentTask   Task?   @relation("TaskSubtasks", fields: [parentTaskId], references: [id], onDelete: Cascade)
+  subtasks     Task[]  @relation("TaskSubtasks")
+
+  tags TaskTag[]
+
+  @@index([userId])
+  @@index([userId, completed])
+  @@index([listId])
+  @@index([parentTaskId])
+  @@index([dueDate])
+}
+
+model TaskList {
+  id        String   @id @default(uuid())
+  name      String
+  color     String   @default("#64748b")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  tasks Task[]
+
+  @@unique([userId, name])
+  @@index([userId])
+}
+
+model Tag {
+  id        String   @id @default(uuid())
+  name      String
+  color     String   @default("#8b5cf6")
+  createdAt DateTime @default(now())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  tasks TaskTag[]
+
+  @@unique([userId, name])
+  @@index([userId])
+}
+
+model TaskTag {
+  taskId String
+  tagId  String
+
+  task Task @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  tag  Tag  @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([taskId, tagId])
+  @@index([tagId])
+}

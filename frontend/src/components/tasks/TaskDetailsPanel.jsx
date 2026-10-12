@@ -16,9 +16,9 @@ export default function TaskDetailsPanel({
     createTask,
     updateTask,
     deleteTask,
+    createTag,
     lists,
     tags: availableTags,
-    setTags: setAvailableTags,
     activeMenu,
   } = useTasks();
 
@@ -150,91 +150,91 @@ const [titleError, setTitleError] = useState("");
     }
   }, [task, isCreatingTask, creationMode, defaultPriority]);
 
-  function handleSave() {
-    if (isCreatingTask && !title.trim()) {
-      setTitleError("Informe um título para criar esta tarefa.");
-
-      return;
-    }
-
-    setTitleError("");
-
-    if (isCreatingTask && creationMode === "week" && !dueDate) {
-      setDateError("Informe uma data para criar esta tarefa.");
-
-      return;
-    }
-
-    setDateError("");
-
-    const taskData = {
-      ...(task || {}),
-
-      title,
-
-      description,
-
-      list,
-
-      dueDate,
-
-      dueTime,
-
-      priority,
-
-      completed,
-
-      tags,
-    };
-
-    if (isCreatingTask) {
-      createTask(taskData);
-    } else {
-      updateTask(taskData);
-    }
-
-    setSelectedTask(null);
-
-    setIsCreatingTask(false);
+async function handleSave() {
+  if (!title.trim()) {
+    setTitleError("Informe um título para criar esta tarefa.");
+    return;
   }
 
-  function handleDelete() {
-    if (!task) {
-      return;
+  setTitleError("");
+
+  if (isCreatingTask && creationMode === "week" && !dueDate) {
+    setDateError("Informe uma data para criar esta tarefa.");
+    return;
+  }
+
+  setDateError("");
+
+  const taskData = {
+    ...(task || {}),
+    title: title.trim(),
+    description,
+    list,
+    dueDate,
+    dueTime,
+    priority,
+    completed,
+    tags,
+  };
+
+  try {
+    if (isCreatingTask) {
+      await createTask(taskData);
+    } else {
+      await updateTask(taskData);
     }
 
-    deleteTask(task.id);
+    toast.success(isCreatingTask ? "Task created." : "Task updated.");
+    setSelectedTask(null);
+    setIsCreatingTask(false);
+  } catch (error) {
+    console.error("Erro ao salvar tarefa:", error);
+    toast.error(error.message || "Não foi possível salvar a tarefa.");
+  }
+}
+
+async function handleDelete() {
+  if (!task) return;
+
+  try {
+    await deleteTask(task.id);
 
     toast.success("Task deleted.");
-
     setShowDeleteModal(false);
     setSelectedTask(null);
     setIsCreatingTask(false);
+  } catch (error) {
+    console.error("Erro ao excluir tarefa:", error);
+    toast.error(error.message || "Não foi possível excluir a tarefa.");
+  }
+}
+
+async function handleCreateTag(newTag) {
+  const alreadyExists = availableTags.some(
+    (tag) => tag.label.toLowerCase() === newTag.label.trim().toLowerCase(),
+  );
+
+  if (alreadyExists) {
+    toast.error("Essa tag já existe.");
+    return;
   }
 
-  function handleCreateTag(newTag) {
-    const alreadyExists = availableTags.some(
-      (tag) => tag.label.toLowerCase() === newTag.label.toLowerCase(),
+  try {
+    const createdTag = await createTag(newTag);
+
+    setTags((prev) =>
+      prev.includes(createdTag.label)
+        ? prev
+        : [...prev, createdTag.label],
     );
 
-    if (alreadyExists) {
-      setShowTagModal(false);
-      return;
-    }
-
-    setAvailableTags((prev) => [...prev, newTag]);
-
-    setTags((prev) => {
-      if (prev.includes(newTag.label)) {
-        return prev;
-      }
-
-      return [...prev, newTag.label];
-    });
-
     setShowTagModal(false);
+    toast.success("Tag created.");
+  } catch (error) {
+    console.error("Erro ao criar tag:", error);
+    toast.error(error.message || "Não foi possível criar a tag.");
   }
-
+}
   if (!task && !isCreatingTask) {
     return (
       <div className="bg-slate-800/40 border border-slate-600 rounded-xl p-6 sticky top-8">
